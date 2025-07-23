@@ -3,11 +3,19 @@ from sqlalchemy.orm import Session
 from schemas import ItemCreate, ItemResponse
 from database import get_db
 import schemas, models
+from .auth import get_current_user
+
 
 router = APIRouter(
     prefix='/items',
     tags=['Items']
 )
+
+class ItemNotFoundException(Exception):
+    def __init__(self, item_id: int):
+        self.item_id = item_id
+
+
 
 @router.post("/", response_model=schemas.ItemResponse)
 async def create_item(Items: ItemCreate,db : Session = Depends(get_db) ):
@@ -20,7 +28,7 @@ async def create_item(Items: ItemCreate,db : Session = Depends(get_db) ):
 
 
 @router.get("/{id}", response_model=ItemResponse)
-async def get_itembyid(id: int, db: Session = Depends(get_db)):
+async def get_itembyid(id: int, db: Session = Depends(get_db), currentuser: int= Depends(get_current_user)):
     get_item = db.query(models.Item).filter(models.Item.id ==id).first()
     if get_item == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND , detail=f"Item with ID {id} not found")
@@ -49,3 +57,4 @@ async def delete_items(id : int, db : Session= Depends(get_db)):
     db.delete(get_item)
     db.commit()
     return {"status": f"Item wit{id} is deleted"}
+
