@@ -9,3 +9,16 @@ class ItemCreate(BaseModel):
 
 class ItemResponse(ItemCreate):
     id :int
+
+
+class UserCreate(BaseModel):
+    email:str
+    password:str
+
+
+class UserCreateOut(BaseModel):
+    email: str
+    id: int
+
+class TokenData(BaseModel):
+    id:Optional[int] =None
